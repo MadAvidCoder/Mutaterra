@@ -12,7 +12,7 @@ var last_mouse_pos = Vector2.ZERO
 var is_dragging = false
 var creature_chunks = {}
 
-@onready var http = $HTTPRequest
+@onready var network = $Network
 @onready var camera = $Camera2D
 @onready var container = $CreatureContainer
 @onready var creature_scene = preload("res://Creature.tscn")
@@ -71,16 +71,23 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _load_visible_chunks():
 	var pos = camera.get_screen_center_position()
-	var chunk_x = int(floor(pos.x / chunk_size))
-	var chunk_y = int(floor(pos.y / chunk_size))
-	var chunk_id = Vector2(chunk_x, chunk_y)
-	
-	if not loaded_chunks.has(chunk_id):
-		http.fetch_chunk(chunk_x, chunk_y)
-		loaded_chunks[chunk_id] = true
+	var cam_chunk_x = int(floor(pos.x / chunk_size))
+	var cam_chunk_y = int(floor(pos.y / chunk_size))
+
+	var preload_radius = 10
+
+	for dx in range(-preload_radius, preload_radius + 1):
+		for dy in range(-preload_radius, preload_radius + 1):
+			var chunk_x = cam_chunk_x + dx
+			var chunk_y = cam_chunk_y + dy
+			var chunk_id = Vector2(chunk_x, chunk_y)
+
+			if not loaded_chunks.has(chunk_id) and not network.request_queue.has([chunk_x, chunk_y]):
+				network.fetch_chunk(chunk_x, chunk_y)
+				loaded_chunks[chunk_id] = true
 
 func _on_chunk_loaded(data) -> void:
-	for creature in data:
+	for creature in data["creatures"]:
 		_spawn_creature(creature)
 
 func _spawn_creature(data: Dictionary):

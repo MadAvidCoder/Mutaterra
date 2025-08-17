@@ -15,7 +15,7 @@ limit_right = 1500000000
 limit_bottom = 1500000000
 position_smoothing_speed = 100.0
 
-[node name="HTTPRequest" type="HTTPRequest" parent="."]
+[node name="Network" type="Node2D" parent="."]
 script = ExtResource("2_0xm2m")
 
 [node name="CreatureContainer" type="Node2D" parent="."]
@@ -23,5 +23,4 @@ script = ExtResource("2_0xm2m")
 [node name="GridOverlay" type="Node2D" parent="."]
 script = ExtResource("3_h2yge")
 
-[connection signal="chunk_loaded" from="HTTPRequest" to="." method="_on_chunk_loaded"]
-[connection signal="request_completed" from="HTTPRequest" to="HTTPRequest" method="_on_request_completed"]
+[connection signal="chunk_loaded" from="Network" to="." method="_on_chunk_loaded"]
