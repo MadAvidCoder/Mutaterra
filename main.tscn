@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3 uid="uid://dvnr76njis8yh"]
+
+[ext_resource type="Script" uid="uid://d38tmj07vb85n" path="res://main.gd" id="1_ig7tw"]
+
+[node name="Node2D" type="Node2D"]
+scale = Vector2(2.30865, 2.04262)
+script = ExtResource("1_ig7tw")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+
+[node name="HTTPRequest" type="HTTPRequest" parent="."]
+
+[node name="CreatureContainer" type="Node2D" parent="."]
