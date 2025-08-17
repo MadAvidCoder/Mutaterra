@@ -9,11 +9,6 @@ scale = Vector2(2.30865, 2.04262)
 script = ExtResource("1_ig7tw")
 
 [node name="Camera2D" type="Camera2D" parent="."]
-limit_left = -1500000000
-limit_top = -1500000000
-limit_right = 1500000000
-limit_bottom = 1500000000
-position_smoothing_speed = 100.0
 
 [node name="HTTPRequest" type="HTTPRequest" parent="."]
 script = ExtResource("2_0xm2m")
