@@ -1,16 +1,22 @@
 extends Node2D
+var last_camera_chunk = Vector2i.ZERO
 
 @export var chunk_size: int = 512
-@export var range: int = 15
+@export var range: int = 7
 @onready var camera: Camera2D = get_parent().get_node("Camera2D")
 
 func _process(delta):
-	queue_redraw()
+	var pos = camera.position
+	var cam_chunk = Vector2i(floor(pos.x / chunk_size), floor(pos.y / chunk_size))
+	
+	if cam_chunk != last_camera_chunk:
+		last_camera_chunk = cam_chunk
+		queue_redraw()
 
 func _draw():
-	var cam_pos = camera.get_screen_center_position()
-	var cam_chunk_x = int(cam_pos.x / chunk_size)
-	var cam_chunk_y = int(cam_pos.y / chunk_size)
+	var cam_pos = camera.position
+	var cam_chunk_x = floor(cam_pos.x / chunk_size)
+	var cam_chunk_y = floor(cam_pos.y / chunk_size)
 
 	for dx in range(-range, range + 1):
 		for dy in range(-range, range + 1):

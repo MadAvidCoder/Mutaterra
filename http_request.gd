@@ -6,10 +6,11 @@ var request_queue = []
 var making_request = false
 var peer
 var connected = false
+var reqs_per_frame = 4
 
 func _ready() -> void:
 	peer = WebSocketPeer.new()
-	var err = peer.connect_to_url("ws://hackclub.app:38461/ws")
+	var err = peer.connect_to_url("ws://mutaterra.madavidcoder.hackclub.app/ws")
 	if err != OK:
 		print("Failed to connect:", err)
 	else:
@@ -23,7 +24,6 @@ func _process(delta: float) -> void:
 			if not connected:
 				connected = true
 				print("Connected!")
-				process_queue()
 		WebSocketPeer.STATE_CLOSING, WebSocketPeer.STATE_CLOSED:
 			if connected:
 				connected = false
@@ -34,15 +34,12 @@ func _process(delta: float) -> void:
 		var data = JSON.parse_string(msg)
 		if typeof(data) == TYPE_DICTIONARY and data.get("type") == "chunk":
 			chunk_loaded.emit(data)
-
-func process_queue():
-	while not request_queue.is_empty():
-		var item = request_queue.pop_front()
-		fetch_chunk(item[0], item[1])
+	
+	for i in range(reqs_per_frame):
+		if connected and not request_queue.is_empty():
+			var item = request_queue.pop_front()
+			var msg = "get_chunk %d %d" % item
+			peer.send_text(msg)
 
 func fetch_chunk(x, y):
-	if connected:
-		var msg = "get_chunk %d %d" % [x, y]
-		peer.send_text(msg)
-	else:
-		request_queue.append([x, y])
+	request_queue.append([x, y])

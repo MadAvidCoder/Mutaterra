@@ -11,6 +11,7 @@ var loaded_chunks = {}
 var last_mouse_pos = Vector2.ZERO
 var is_dragging = false
 var creature_chunks = {}
+var requested_chunks = {}
 
 @onready var network = $Network
 @onready var camera = $Camera2D
@@ -28,23 +29,21 @@ func _process(delta: float) -> void:
 	_unload_far_chunks()
 
 func _unload_far_chunks():
-	var pos = camera.get_screen_center_position()
-	var current_chunk = Vector2i(int(pos.x / chunk_size), int(pos.y / chunk_size))
+	var pos = camera.position
+	var current_chunk = Vector2i(floor(pos.x / chunk_size), floor(pos.y / chunk_size))
 
 	var chunks_to_unload := []
 
 	for chunk_id in loaded_chunks.keys():
-		var distance = current_chunk.distance_to(Vector2i(chunk_id))
-		if distance > 15:
+		var distance = current_chunk.distance_to(chunk_id)
+		if distance > 7:
 			chunks_to_unload.append(chunk_id)
 
 	for chunk_id in chunks_to_unload:
 		if creature_chunks.has(chunk_id):
 			for creature in creature_chunks[chunk_id]:
 				creature.queue_free()
-
-		creature_chunks.erase(chunk_id)
-
+			creature_chunks.erase(chunk_id)
 		loaded_chunks.erase(chunk_id)
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -70,34 +69,47 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _load_visible_chunks():
-	var pos = camera.get_screen_center_position()
-	var cam_chunk_x = int(floor(pos.x / chunk_size))
-	var cam_chunk_y = int(floor(pos.y / chunk_size))
+	var pos = camera.position
+	var cam_chunk_x = floor(pos.x / chunk_size)
+	var cam_chunk_y = floor(pos.y / chunk_size)
 
-	var preload_radius = 10
+	var preload_radius = 5
 
 	for dx in range(-preload_radius, preload_radius + 1):
 		for dy in range(-preload_radius, preload_radius + 1):
 			var chunk_x = cam_chunk_x + dx
 			var chunk_y = cam_chunk_y + dy
-			var chunk_id = Vector2(chunk_x, chunk_y)
-
-			if not loaded_chunks.has(chunk_id) and not network.request_queue.has([chunk_x, chunk_y]):
-				network.fetch_chunk(chunk_x, chunk_y)
-				loaded_chunks[chunk_id] = true
+			var chunk_id = Vector2i(chunk_x, chunk_y)
+			
+			if loaded_chunks.has(chunk_id) or requested_chunks.has(chunk_id):
+				continue
+			
+			network.fetch_chunk(chunk_x, chunk_y)
+			requested_chunks[chunk_id] = true
 
 func _on_chunk_loaded(data) -> void:
-	for creature in data["creatures"]:
-		_spawn_creature(creature)
+	var chunk_id = Vector2i(data.get("chunk_x", -9999), data.get("chunk_y", -9999))
+	if chunk_id.x == -9999 or chunk_id.y == -9999:
+		print("Error: Received chunk data without valid chunk coords:", data)
+		return
 
-func _spawn_creature(data: Dictionary):
+	for creature in data.get("creatures", []):
+		spawn_creature(creature)
+
+	loaded_chunks[chunk_id] = true
+	if requested_chunks.has(chunk_id):
+		requested_chunks.erase(chunk_id)
+	else:
+		print("Warning: chunk", chunk_id, "was not in requested_chunks when loaded")
+
+func spawn_creature(data: Dictionary):
 	var c = creature_scene.instantiate()
 	c.setup(data)
 	container.add_child(c)
 	
-	var chunk_x = int(floor(data["x"] / chunk_size))
-	var chunk_y = int(floor(data["y"] / chunk_size))
-	var chunk_id = Vector2(chunk_x, chunk_y)
+	var chunk_x = floor(data["x"] / chunk_size)
+	var chunk_y = floor(data["y"] / chunk_size)
+	var chunk_id = Vector2i(chunk_x, chunk_y)
 
 	if not creature_chunks.has(chunk_id):
 		creature_chunks[chunk_id] = []
