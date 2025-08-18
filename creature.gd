@@ -76,7 +76,7 @@ func _process(delta: float) -> void:
 
 	energy -= delta
 
-	modulate.a = clamp(energy / 100.0, 0.25, 1.0)
+	modulate.a = clamp(energy / 100.0, 0.2, 1.0)
 
 	var base_size = genes.get("size", 1.0)
 	self.scale = Vector2.ONE * base_size * clamp(energy / 100.0, 0.5, 1.0)
