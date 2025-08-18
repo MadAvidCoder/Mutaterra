@@ -2,7 +2,7 @@ extends Node2D
 var last_camera_chunk = Vector2i.ZERO
 
 @export var chunk_size: int = 512
-@export var range: int = 7
+@export var range: int = 6
 @onready var camera: Camera2D = get_parent().get_node("Camera2D")
 
 func _process(delta):

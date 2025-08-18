@@ -36,7 +36,7 @@ func _unload_far_chunks():
 
 	for chunk_id in loaded_chunks.keys():
 		var distance = current_chunk.distance_to(chunk_id)
-		if distance > 7:
+		if distance > 6:
 			chunks_to_unload.append(chunk_id)
 
 	for chunk_id in chunks_to_unload:
@@ -73,7 +73,7 @@ func _load_visible_chunks():
 	var cam_chunk_x = floor(pos.x / chunk_size)
 	var cam_chunk_y = floor(pos.y / chunk_size)
 
-	var preload_radius = 5
+	var preload_radius = 3
 
 	for dx in range(-preload_radius, preload_radius + 1):
 		for dy in range(-preload_radius, preload_radius + 1):
