@@ -116,3 +116,4 @@ func spawn_creature(data: Dictionary):
 		creature_chunks[chunk_id] = []
 
 	creature_chunks[chunk_id].append(c)
+	return c
