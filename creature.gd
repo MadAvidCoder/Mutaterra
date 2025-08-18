@@ -74,7 +74,7 @@ func _process(delta: float) -> void:
 
 	position += velocity * delta
 
-	energy -= delta
+	energy -= delta / 20
 
 	modulate.a = clamp(energy / 100.0, 0.2, 1.0)
 
