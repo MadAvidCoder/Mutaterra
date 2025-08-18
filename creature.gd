@@ -41,12 +41,8 @@ func reproduce_with(partner):
 		var gene_a = genes[key]
 		var gene_b = partner.genes.get(key, gene_a)
 		var avg_gene = (gene_a + gene_b) / 2
-		if key == "color":
-			var mutation = randf_range(-20, 20)
-			child_genes[key] = clamp(avg_gene * (1 + mutation), 0, 255)
-		else:
-			var mutation = randf_range(-0.1, 0.1)
-			child_genes[key] = clamp(avg_gene * (1 + mutation), 0, 1)
+		var mutation = randf_range(-0.1, 0.1)
+		child_genes[key] = clamp(avg_gene * (1 + mutation), 0, 1)
 	
 	var spawn_pos = (position + partner.position) / 2 + Vector2(randf_range(-10,10), randf_range(-10,10))
 	
