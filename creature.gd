@@ -29,7 +29,7 @@ func can_reproduce() -> bool:
 func reproduce_with(partner):
 	if not can_reproduce() or not partner.can_reproduce():
 		return null
-	
+
 	energy -= REPRODUCTION_ENERGY_COST / 2
 	partner.energy -= REPRODUCTION_ENERGY_COST / 2
 	
@@ -60,13 +60,13 @@ func try_reproduce_nearby():
 				break
 
 func _process(delta: float) -> void:
+	if not is_visible_in_tree():
+		return
+	
 	if reproduction_cooldown > 0:
 		reproduction_cooldown -= delta
 	else:
 		try_reproduce_nearby()
-
-	if not is_visible_in_tree():
-		return
 
 	direction_timer -= delta
 	if direction_timer <= 0:

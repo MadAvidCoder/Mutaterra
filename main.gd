@@ -42,7 +42,8 @@ func _unload_far_chunks():
 	for chunk_id in chunks_to_unload:
 		if creature_chunks.has(chunk_id):
 			for creature in creature_chunks[chunk_id]:
-				creature.queue_free()
+				if is_instance_valid(creature):
+					creature.queue_free()
 			creature_chunks.erase(chunk_id)
 		loaded_chunks.erase(chunk_id)
 
