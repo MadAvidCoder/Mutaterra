@@ -39,8 +39,8 @@ func reproduce_with(partner):
 	if not can_reproduce() or not partner.can_reproduce():
 		return null
 
-	energy -= REPRODUCTION_ENERGY_COST / 2
-	partner.energy -= REPRODUCTION_ENERGY_COST / 2
+	energy -= REPRODUCTION_ENERGY_COST / 2.0
+	partner.energy -= REPRODUCTION_ENERGY_COST / 2.0
 	
 	reproduction_cooldown = REPRODUCTION_COOLDOWN_TIME
 	partner.reproduction_cooldown = REPRODUCTION_COOLDOWN_TIME

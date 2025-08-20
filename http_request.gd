@@ -17,7 +17,7 @@ func _ready() -> void:
 	else:
 		print("Connecting to websocket...")
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	peer.poll()
 	
 	match peer.get_ready_state():

@@ -135,7 +135,6 @@ func _find_creature_by_id(id):
 	return null
 
 func _on_chunk_updated(data: Dictionary) -> void:
-	var chunk_id = Vector2i(data["chunk_x"], data["chunk_y"])
 	for creature_data in data.get("creatures", []):
 		var creature = _find_creature_by_id(creature_data["id"])
 		if creature:
