@@ -38,8 +38,15 @@ func _process(delta: float) -> void:
 	for i in range(reqs_per_frame):
 		if connected and not request_queue.is_empty():
 			var item = request_queue.pop_front()
-			var msg = "get_chunk %d %d" % item
-			peer.send_text(msg)
+			if item[1] == "get":
+				var msg = "get_chunk %d %d" % item[0]
+				peer.send_text(msg)
+			elif item[1] == "unwatch":
+				var msg = "unwatch_chunk %d %d" % item[0]
+				peer.send_text(msg)
+
+func unwatch_chunk(x, y):
+	request_queue.append([[x,y], "unwatch"])
 
 func fetch_chunk(x, y):
-	request_queue.append([x, y])
+	request_queue.append([[x, y], "get"])

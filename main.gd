@@ -45,6 +45,7 @@ func _unload_far_chunks():
 				if is_instance_valid(creature):
 					creature.queue_free()
 			creature_chunks.erase(chunk_id)
+		network.unwatch_chunk(chunk_id.x, chunk_id.y)
 		loaded_chunks.erase(chunk_id)
 
 func _unhandled_input(event: InputEvent) -> void:
