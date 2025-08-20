@@ -136,6 +136,8 @@ func _find_creature_by_id(id):
 
 func _on_chunk_updated(data: Dictionary) -> void:
 	for creature_data in data.get("creatures", []):
+		if not creature_data.has("id"):
+			continue
 		var creature = _find_creature_by_id(creature_data["id"])
 		if creature:
 			creature.sync_with_backend(creature_data)
