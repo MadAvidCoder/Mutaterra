@@ -86,19 +86,24 @@ func _process(delta: float) -> void:
 
 func _pick_new_direction():
 	direction_timer = CHANGE_INTERVAL
-	var angle = randf_range(0, TAU)
-
-	velocity = Vector2.RIGHT.rotated(angle) * speed
-
+	var nearest_mate
+	var min_dist = INF
 	var mates = $"..".get_children()
-	mates.shuffle()
 	for mate in mates:
 		if mate == self:
 			continue
-		if position.distance_to(mate.position) < 500 and randf() < 0.33:
-			angle = position.angle_to(mate.position)
-			mate.velocity = Vector2.RIGHT.rotated(mate.position.angle_to(self.position)) * mate.speed * 2
-			velocity = Vector2.RIGHT.rotated(angle) * speed * 2
+		var dist = position.distance_to(mate.position)
+		if dist < 200 and dist < min_dist:
+			nearest_mate = mate
+			min_dist = dist
+	
+	var angle = randf_range(0, TAU)
+	if nearest_mate:
+		if randf() < 0.5:
+			angle = position.angle_to(nearest_mate.position)
+			angle += randf_range(-0.13, 0.13)
+
+	velocity = Vector2.RIGHT.rotated(angle) * speed
 
 func setup(data):
 	position = Vector2(data["x"], data["y"])
