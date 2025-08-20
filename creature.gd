@@ -7,9 +7,10 @@ var direction_timer = 0.0
 const CHANGE_INTERVAL = 2.0
 var energy: float = 100.0
 var reproduction_cooldown = 0.0
+var interp_start: Vector2
 var authoritative_pos: Vector2
 var update_timer = 0.0
-var interp_duration = 0.5
+var interp_duration = 0.42
 
 const REPRODUCTION_ENERGY_COST = 50
 const REPRODUCTION_COOLDOWN_TIME = 10.0
@@ -17,6 +18,7 @@ const REPRODUCTION_COOLDOWN_TIME = 10.0
 @onready var main = $"../.."
 
 func sync_with_backend(data):
+	interp_start = position
 	authoritative_pos = Vector2(data["x"], data["y"])
 	update_timer = 0.0
 	energy = data["energy"]
@@ -75,7 +77,7 @@ func _process(delta: float) -> void:
 	if authoritative_pos != null:
 		update_timer += delta
 		var t = clamp(update_timer / interp_duration, 0, 1)
-		position = position.lerp(authoritative_pos, t)
+		position = interp_start.lerp(authoritative_pos, t)
 
 	"""if reproduction_cooldown > 0:
 		reproduction_cooldown -= delta
@@ -121,7 +123,9 @@ func _pick_new_direction():
 
 func setup(data):
 	position = Vector2(data["x"], data["y"])
-	var color = Color.from_hsv(data["genes"].get("color", 0) / 360.0, 1, 1)
+	interp_start = position
+	authoritative_pos = position
+	var color = Color.from_hsv(data["genes"].get("color", 0), 1, 1)
 	$ColorRect.color = color
 	scale = Vector2.ONE * data["genes"].get("size", 1.0)
 	genes = data["genes"]
