@@ -12,6 +12,7 @@ var last_mouse_pos = Vector2.ZERO
 var is_dragging = false
 var creature_chunks = {}
 var requested_chunks = {}
+var creature_map = {}
 
 @onready var network = $Network
 @onready var camera = $Camera2D
@@ -117,4 +118,27 @@ func spawn_creature(data: Dictionary):
 		creature_chunks[chunk_id] = []
 
 	creature_chunks[chunk_id].append(c)
+	
+	if data.has("id"):
+		creature_map[data["id"]] = c
+		c.connect("tree_exited", Callable(self, "_on_creature_removed").bind(data["id"]))
+	
 	return c
+
+func _on_creature_removed(id):
+	if creature_map.has(id):
+		creature_map.erase(id)
+
+func _find_creature_by_id(id):
+	if creature_map.has(id):
+		return creature_map[id]
+	return null
+
+func _on_chunk_updated(data: Dictionary) -> void:
+	var chunk_id = Vector2i(data["chunk_x"], data["chunk_y"])
+	for creature_data in data.get("creatures", []):
+		var creature = _find_creature_by_id(creature_data["id"])
+		if creature:
+			creature.sync_with_backend(creature_data)
+		else:
+			spawn_creature(creature_data)

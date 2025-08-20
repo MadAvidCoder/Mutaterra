@@ -24,3 +24,4 @@ script = ExtResource("2_0xm2m")
 script = ExtResource("3_h2yge")
 
 [connection signal="chunk_loaded" from="Network" to="." method="_on_chunk_loaded"]
+[connection signal="chunk_updated" from="Network" to="." method="_on_chunk_updated"]

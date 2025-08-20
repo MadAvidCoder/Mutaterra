@@ -1,6 +1,7 @@
 extends Node2D
 
 signal chunk_loaded(data: Array)
+signal chunk_updated(data: Dictionary)
 
 var request_queue = []
 var making_request = false
@@ -32,8 +33,11 @@ func _process(delta: float) -> void:
 	while peer.get_available_packet_count() > 0:
 		var msg = peer.get_packet().get_string_from_utf8()
 		var data = JSON.parse_string(msg)
-		if typeof(data) == TYPE_DICTIONARY and data.get("type") == "chunk":
-			chunk_loaded.emit(data)
+		if typeof(data) == TYPE_DICTIONARY:
+			if data.get("type") == "chunk":
+				chunk_loaded.emit(data)
+			elif data.get("type") == "chunk_update":
+				chunk_updated.emit(data)
 	
 	for i in range(reqs_per_frame):
 		if connected and not request_queue.is_empty():

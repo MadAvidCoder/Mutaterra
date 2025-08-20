@@ -7,10 +7,19 @@ var direction_timer = 0.0
 const CHANGE_INTERVAL = 2.0
 var energy: float = 100.0
 var reproduction_cooldown = 0.0
+var authoritative_pos: Vector2
+var update_timer = 0.0
+var interp_duration = 0.5
+
 const REPRODUCTION_ENERGY_COST = 50
 const REPRODUCTION_COOLDOWN_TIME = 10.0
 
 @onready var main = $"../.."
+
+func sync_with_backend(data):
+	authoritative_pos = Vector2(data["x"], data["y"])
+	update_timer = 0.0
+	energy = data["energy"]
 
 func _ready():
 	speed = genes.get("speed", 10.0)
@@ -63,7 +72,12 @@ func _process(delta: float) -> void:
 	if not is_visible_in_tree():
 		return
 	
-	if reproduction_cooldown > 0:
+	if authoritative_pos != null:
+		update_timer += delta
+		var t = clamp(update_timer / interp_duration, 0, 1)
+		position = position.lerp(authoritative_pos, t)
+
+	"""if reproduction_cooldown > 0:
 		reproduction_cooldown -= delta
 	else:
 		try_reproduce_nearby()
@@ -79,7 +93,7 @@ func _process(delta: float) -> void:
 	modulate.a = clamp(energy / 100.0, 0.2, 1.0)
 
 	var base_size = genes.get("size", 1.0)
-	self.scale = Vector2.ONE * base_size * clamp(energy / 100.0, 0.5, 1.0)
+	self.scale = Vector2.ONE * base_size * clamp(energy / 100.0, 0.5, 1.0)"""
 
 	if energy <= 0:
 		queue_free()
