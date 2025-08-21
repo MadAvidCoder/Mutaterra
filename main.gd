@@ -13,6 +13,7 @@ var is_dragging = false
 var creature_chunks = {}
 var requested_chunks = {}
 var creature_map = {}
+var pending_chunk_batches = {}
 
 @onready var network = $Network
 @onready var camera = $Camera2D
@@ -96,14 +97,32 @@ func _on_chunk_loaded(data) -> void:
 		print("Error: Received chunk data without valid chunk coords:", data)
 		return
 
-	for creature in data.get("creatures", []):
-		spawn_creature(creature)
+	# Batch handling
+	var batch_index = int(data["batch_index"]) if data.has("batch_index") else 0
+	var batch_count = int(data["batch_count"]) if data.has("batch_count") else 1
+	
+	if not pending_chunk_batches.has(chunk_id):
+		pending_chunk_batches[chunk_id] = {
+			"batches": {},
+			"total": batch_count
+		}
 
-	loaded_chunks[chunk_id] = true
-	if requested_chunks.has(chunk_id):
-		requested_chunks.erase(chunk_id)
-	else:
-		print("Warning: chunk", chunk_id, "was not in requested_chunks when loaded")
+	pending_chunk_batches[chunk_id]["batches"][batch_index] = data.get("creatures", [])
+	pending_chunk_batches[chunk_id]["total"] = batch_count
+
+	if pending_chunk_batches[chunk_id]["batches"].size() == batch_count:
+		var all_creatures = []
+		for i in range(batch_count):
+			all_creatures += pending_chunk_batches[chunk_id]["batches"][i]
+		for creature in all_creatures:
+			spawn_creature(creature)
+		loaded_chunks[chunk_id] = true
+		if requested_chunks.has(chunk_id):
+			requested_chunks.erase(chunk_id)
+		else:
+			print("Warning: chunk", chunk_id, "was not in requested_chunks when loaded")
+		pending_chunk_batches.erase(chunk_id)
+
 
 func spawn_creature(data: Dictionary):
 	var c = creature_scene.instantiate()
@@ -137,7 +156,7 @@ func _find_creature_by_id(id):
 func _on_chunk_updated(data: Dictionary) -> void:
 	for creature_data in data.get("creatures", []):
 		if not creature_data.has("id"):
-			continue
+			return
 		var creature = _find_creature_by_id(creature_data["id"])
 		if creature:
 			creature.sync_with_backend(creature_data)
