@@ -154,6 +154,14 @@ func _find_creature_by_id(id):
 	return null
 
 func _on_chunk_updated(data: Dictionary) -> void:
+	if data.has("dead_ids"):
+		for id in data["dead_ids"]:
+			print(id)
+			var creature = _find_creature_by_id(id)
+			if creature:
+				print("bye")
+				creature.queue_free()
+				creature_map.erase(id)
 	for creature_data in data.get("creatures", []):
 		if not creature_data.has("id"):
 			return
