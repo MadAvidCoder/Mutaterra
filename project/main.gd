@@ -122,7 +122,6 @@ func _on_chunk_loaded(data) -> void:
 			print("Warning: chunk", chunk_id, "was not in requested_chunks when loaded")
 		pending_chunk_batches.erase(chunk_id)
 
-
 func spawn_creature(data: Dictionary):
 	var c = load("res://creature.tscn").instantiate()
 	c.setup(data)
