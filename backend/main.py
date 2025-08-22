@@ -25,7 +25,7 @@ MAX_CREATURES_PER_CHUNK = 200
 REPRODUCTION_ENERGY_COST = 60.0
 REPRODUCTION_COOLDOWN_TIME = 20.0
 REPRODUCTION_RADIUS = 30.0
-MAX_CREATURES_PER_MESSAGE = 50
+MAX_CREATURES_PER_MESSAGE = 25
 MUTATION_AMOUNT = 0.1
 DENSITY_LIMIT = 5
 
@@ -137,6 +137,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     }
                     msg_json = json.dumps(msg_dict)
                     await websocket.send_text(msg_json)
+                    await asyncio.sleep(0.01)
             
             elif msg.startswith("unwatch_chunk"):
                 _, x_str, y_str = msg.split()
@@ -196,6 +197,7 @@ async def simulation_loop():
                         except Exception as e:
                             print(f"Error sending chunk update to websocket: {e}")
                             websocket_chunk_map.pop(websocket, None)
+                        await asyncio.sleep(0.01)
         finally:
             db.close()
         elapsed = time.time() - last_time
