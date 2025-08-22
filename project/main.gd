@@ -18,7 +18,6 @@ var pending_chunk_batches = {}
 @onready var network = $Network
 @onready var camera = $Camera2D
 @onready var container = $CreatureContainer
-@onready var creature_scene = preload("res://Creature.tscn")
 
 func _process(delta: float) -> void:
 	var input = Vector2(
@@ -125,7 +124,7 @@ func _on_chunk_loaded(data) -> void:
 
 
 func spawn_creature(data: Dictionary):
-	var c = creature_scene.instantiate()
+	var c = load("res://creature.tscn").instantiate()
 	c.setup(data)
 	container.add_child(c)
 	
