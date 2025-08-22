@@ -1,23 +1,14 @@
-[gd_scene load_steps=5 format=3 uid="uid://dvnr76njis8yh"]
+[gd_scene load_steps=6 format=3 uid="uid://dvnr76njis8yh"]
 
 [ext_resource type="Script" uid="uid://d38tmj07vb85n" path="res://main.gd" id="1_ig7tw"]
 [ext_resource type="Script" uid="uid://dmqbukp8bq4jx" path="res://http_request.gd" id="2_0xm2m"]
 [ext_resource type="PackedScene" uid="uid://cgk2t7fsff6wa" path="res://creature.tscn" id="3_1bvp3"]
 [ext_resource type="Script" uid="uid://pbt1o87sonu2" path="res://grid_overlay.gd" id="3_h2yge"]
+[ext_resource type="Script" uid="uid://e465oiro0eod" path="res://terrain_overlay.gd" id="4_lquwl"]
 
 [node name="Node2D" type="Node2D"]
 scale = Vector2(2.30865, 2.04262)
 script = ExtResource("1_ig7tw")
-
-[node name="Camera2D" type="Camera2D" parent="."]
-limit_left = -1500000000
-limit_top = -1500000000
-limit_right = 1500000000
-limit_bottom = 1500000000
-position_smoothing_speed = 100.0
-
-[node name="Network" type="Node2D" parent="."]
-script = ExtResource("2_0xm2m")
 
 [node name="CreatureContainer" type="Node2D" parent="."]
 
@@ -26,6 +17,19 @@ scale = Vector2(1e-05, 1e-05)
 
 [node name="GridOverlay" type="Node2D" parent="."]
 script = ExtResource("3_h2yge")
+
+[node name="TerrainOverlay" type="Node2D" parent="."]
+script = ExtResource("4_lquwl")
+
+[node name="Network" type="Node2D" parent="."]
+script = ExtResource("2_0xm2m")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+limit_left = -1500000000
+limit_top = -1500000000
+limit_right = 1500000000
+limit_bottom = 1500000000
+position_smoothing_speed = 100.0
 
 [connection signal="chunk_loaded" from="Network" to="." method="_on_chunk_loaded"]
 [connection signal="chunk_updated" from="Network" to="." method="_on_chunk_updated"]
