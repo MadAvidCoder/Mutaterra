@@ -10,7 +10,7 @@ var reproduction_cooldown = 0.0
 var interp_start: Vector2
 var authoritative_pos: Vector2
 var update_timer = 0.0
-var interp_duration = 0.65
+var interp_duration = 0.62
 
 const REPRODUCTION_ENERGY_COST = 50
 const REPRODUCTION_COOLDOWN_TIME = 10.0
