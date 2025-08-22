@@ -11,7 +11,7 @@ var reqs_per_frame = 4
 
 func _ready() -> void:
 	peer = WebSocketPeer.new()
-	var err = peer.connect_to_url("ws://mutaterra.madavidcoder.hackclub.app/ws")
+	var err = peer.connect_to_url("wss://mutaterra.madavidcoder.hackclub.app/ws")
 	if err != OK:
 		print("Failed to connect:", err)
 	else:
