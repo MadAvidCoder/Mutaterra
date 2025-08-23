@@ -14,6 +14,7 @@ var creature_chunks = {}
 var requested_chunks = {}
 var creature_map = {}
 var pending_chunk_batches = {}
+var creature_names = {-1: "N/A"}
 
 @onready var network = $Network
 @onready var camera = $Camera2D
