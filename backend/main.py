@@ -218,60 +218,56 @@ def simulate_chunk(creature_list, db):
     child_objs = []
     for i, c in enumerate(creature_list[:]):
         c['reproduction_cooldown'] = max(0, c.get('reproduction_cooldown', 0) - 0.5)
-        if c['energy'] < REPRODUCTION_ENERGY_COST or c['reproduction_cooldown'] > 0:
-            continue
-        if can_spawn_in_chunk(int(c['x'] // 512), int(c['y'] // 512), db, MAX_CREATURES_PER_CHUNK) == False:
-            continue
+        if c['energy'] >= REPRODUCTION_ENERGY_COST and c['reproduction_cooldown'] <= 0 and can_spawn_in_chunk(int(c['x'] // 512), int(c['y'] // 512), db, MAX_CREATURES_PER_CHUNK):
+            eligible_mates = [
+                mate for j, mate in enumerate(creature_list)
+                if i != j and
+                mate['energy'] >= REPRODUCTION_ENERGY_COST and
+                mate.get('reproduction_cooldown', 0) <= 0 and
+                (c['x'] - mate['x']) ** 2 + (c['y'] - mate['y']) ** 2 < REPRODUCTION_RADIUS**2
+            ]
+            if eligible_mates:
+                mate = random.choice(eligible_mates)
 
-        eligible_mates = [
-            mate for j, mate in enumerate(creature_list)
-            if i != j and
-               mate['energy'] >= REPRODUCTION_ENERGY_COST and
-               mate.get('reproduction_cooldown', 0) <= 0 and
-               (c['x'] - mate['x']) ** 2 + (c['y'] - mate['y']) ** 2 < REPRODUCTION_RADIUS**2
-        ]
-        if eligible_mates:
-            mate = random.choice(eligible_mates)
+                proposed_x = (c['x'] + mate['x']) / 2 + random.uniform(-10, 10)
+                proposed_y = (c['y'] + mate['y']) / 2 + random.uniform(-10, 10)
 
-            proposed_x = (c['x'] + mate['x']) / 2 + random.uniform(-10, 10)
-            proposed_y = (c['y'] + mate['y']) / 2 + random.uniform(-10, 10)
+                if local_density(proposed_x, proposed_y, creature_list, radius=50) > DENSITY_LIMIT:
+                    continue
 
-            if local_density(proposed_x, proposed_y, creature_list, radius=50) > DENSITY_LIMIT:
-                continue
+                dx = c['x'] - mate['x']
+                dy = c['y'] - mate['y']
 
-            dx = c['x'] - mate['x']
-            dy = c['y'] - mate['y']
-
-            if dx*dx + dy*dy < REPRODUCTION_RADIUS**2:
-                child_genes = {}
-                for key in c['genes']:
-                    gene_a = c['genes'][key]
-                    gene_b = mate['genes'].get(key, gene_a)
-                    avg = (gene_a + gene_b) / 2
-                    mutation = random.uniform(-MUTATION_AMOUNT, MUTATION_AMOUNT)
-                    mutated = avg + mutation
-                    if key == "move_angle":
-                        mutated = mutated % (2 * math.pi)
-                    else:
-                        mutated = min(max(mutated, 0), 1)
-                    child_genes[key] = mutated
-                parent_dist = ((c['x'] - mate['x']) ** 2 + (c['y'] - mate['y']) ** 2) ** 0.5
-                jitter = max(10, parent_dist * 0.5)
-                spawn_x = (c['x'] + mate['x']) / 2 + random.uniform(-jitter, jitter)
-                spawn_y = (c['y'] + mate['y']) / 2 + random.uniform(-jitter, jitter)
-                child_obj = Creature(
-                    x=spawn_x,
-                    y=spawn_y,
-                    genes=child_genes,
-                    energy=100.0,
-                    generation=max(c.get("generation", 1), mate.get("generation", 1)) + 1
-                )
-                child_objs.append(child_obj)
-                c['energy'] -= REPRODUCTION_ENERGY_COST / 2
-                mate['energy'] -= REPRODUCTION_ENERGY_COST / 2
-                c['reproduction_cooldown'] = REPRODUCTION_COOLDOWN_TIME
-                mate['reproduction_cooldown'] = REPRODUCTION_COOLDOWN_TIME
-                break
+                if dx*dx + dy*dy < REPRODUCTION_RADIUS**2:
+                    child_genes = {}
+                    for key in c['genes']:
+                        gene_a = c['genes'][key]
+                        gene_b = mate['genes'].get(key, gene_a)
+                        avg = (gene_a + gene_b) / 2
+                        mutation = random.uniform(-MUTATION_AMOUNT, MUTATION_AMOUNT)
+                        mutated = avg + mutation
+                        if key == "move_angle":
+                            mutated = mutated % (2 * math.pi)
+                        else:
+                            mutated = min(max(mutated, 0), 1)
+                        child_genes[key] = mutated
+                    parent_dist = ((c['x'] - mate['x']) ** 2 + (c['y'] - mate['y']) ** 2) ** 0.5
+                    jitter = max(10, parent_dist * 0.5)
+                    spawn_x = (c['x'] + mate['x']) / 2 + random.uniform(-jitter, jitter)
+                    spawn_y = (c['y'] + mate['y']) / 2 + random.uniform(-jitter, jitter)
+                    child_obj = Creature(
+                        x=spawn_x,
+                        y=spawn_y,
+                        genes=child_genes,
+                        energy=100.0,
+                        generation=max(c.get("generation", 1), mate.get("generation", 1)) + 1
+                    )
+                    child_objs.append(child_obj)
+                    c['energy'] -= REPRODUCTION_ENERGY_COST / 2
+                    mate['energy'] -= REPRODUCTION_ENERGY_COST / 2
+                    c['reproduction_cooldown'] = REPRODUCTION_COOLDOWN_TIME
+                    mate['reproduction_cooldown'] = REPRODUCTION_COOLDOWN_TIME
+                    break
 
         move_angle = c['genes'].get('move_angle', random.uniform(0, 2 * math.pi))
         move_jitter = c['genes'].get('move_jitter', 0.2)
