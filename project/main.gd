@@ -159,6 +159,8 @@ func _on_chunk_updated(data: Dictionary) -> void:
 			if creature:
 				creature.queue_free()
 				creature_map.erase(id)
+				if id in creature_names:
+					creature_names.erase(id)
 	for creature_data in data.get("creatures", []):
 		if not creature_data.has("id"):
 			return
