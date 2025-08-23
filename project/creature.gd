@@ -11,6 +11,8 @@ var interp_start: Vector2
 var authoritative_pos: Vector2
 var update_timer = 0.0
 var interp_duration = 0.82
+var id = -1
+var generation = 0
 
 const REPRODUCTION_ENERGY_COST = 50
 const REPRODUCTION_COOLDOWN_TIME = 10.0
@@ -100,6 +102,10 @@ func _process(delta: float) -> void:
 	if energy <= 0:
 		queue_free()
 
+func _input_event(viewport, event, shape_idx):
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		$"../../StatsPopup".set_creature_data(self)
+
 func _pick_new_direction():
 	direction_timer = CHANGE_INTERVAL
 	var nearest_mate
@@ -130,6 +136,9 @@ func setup(data):
 	scale = Vector2.ONE * data["genes"].get("size", 1.0)
 	genes = data["genes"]
 	
+	id = data["id"] if data.has("id") else -1
+	generation = data["generation"] if data.has("generation") else 0
+
 	speed = genes.get("speed", 10.0)
 	if speed <= 1:
 		speed *= 30

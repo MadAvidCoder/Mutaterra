@@ -1,7 +1,8 @@
-[gd_scene load_steps=6 format=3 uid="uid://dvnr76njis8yh"]
+[gd_scene load_steps=7 format=3 uid="uid://dvnr76njis8yh"]
 
 [ext_resource type="Script" uid="uid://d38tmj07vb85n" path="res://main.gd" id="1_ig7tw"]
 [ext_resource type="Script" uid="uid://dmqbukp8bq4jx" path="res://http_request.gd" id="2_0xm2m"]
+[ext_resource type="Script" uid="uid://chltpkkicx4aa" path="res://stats_popup.gd" id="2_7mycd"]
 [ext_resource type="PackedScene" uid="uid://cgk2t7fsff6wa" path="res://creature.tscn" id="3_1bvp3"]
 [ext_resource type="Script" uid="uid://pbt1o87sonu2" path="res://grid_overlay.gd" id="3_h2yge"]
 [ext_resource type="Script" uid="uid://e465oiro0eod" path="res://terrain_overlay.gd" id="4_lquwl"]
@@ -9,6 +10,156 @@
 [node name="Node2D" type="Node2D"]
 scale = Vector2(2.30865, 2.04262)
 script = ExtResource("1_ig7tw")
+
+[node name="StatsPopup" type="CanvasLayer" parent="."]
+offset = Vector2(576, 324)
+transform = Transform2D(1, 0, 0, 1, 576, 324)
+script = ExtResource("2_7mycd")
+
+[node name="ColorRect" type="ColorRect" parent="StatsPopup"]
+offset_left = 264.0
+offset_top = -122.5
+offset_right = 479.0
+offset_bottom = 177.5
+mouse_filter = 2
+
+[node name="ID" type="Label" parent="StatsPopup/ColorRect"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -93.0
+offset_top = 13.0
+offset_right = 93.0
+offset_bottom = 41.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 20
+text = "ID: 12345"
+horizontal_alignment = 1
+
+[node name="Energy" type="Label" parent="StatsPopup/ColorRect"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -84.5
+offset_top = 61.0
+offset_right = 41.5
+offset_bottom = 89.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 15
+text = "Energy: 28"
+
+[node name="Generation" type="Label" parent="StatsPopup/ColorRect"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -84.5
+offset_top = 89.0
+offset_right = 70.5
+offset_bottom = 117.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 15
+text = "Generation: 12232"
+
+[node name="GeneTitle" type="Label" parent="StatsPopup/ColorRect"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -44.5
+offset_top = -16.0
+offset_right = 44.5
+offset_bottom = 12.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 15
+text = "Genes"
+horizontal_alignment = 1
+
+[node name="Speed" type="Label" parent="StatsPopup/ColorRect"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -68.5
+offset_top = 165.0
+offset_right = 53.5
+offset_bottom = 193.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 13
+text = "Speed: 2312"
+
+[node name="Size" type="Label" parent="StatsPopup/ColorRect"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -68.5
+offset_top = 187.0
+offset_right = 49.5
+offset_bottom = 215.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 13
+text = "Size: 12121"
+
+[node name="Color" type="Label" parent="StatsPopup/ColorRect"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -68.5
+offset_top = 208.0
+offset_right = 58.5
+offset_bottom = 236.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 13
+text = "Colour: 124"
+
+[node name="Angle" type="Label" parent="StatsPopup/ColorRect"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -68.5
+offset_top = 230.0
+offset_right = 73.5
+offset_bottom = 258.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 13
+text = "Move Angle: 123223"
+
+[node name="Jitter" type="Label" parent="StatsPopup/ColorRect"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -68.5
+offset_top = 251.0
+offset_right = 73.5
+offset_bottom = 279.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 13
+text = "Move Jitter: 123223"
+
+[node name="ClickHandler" type="ColorRect" parent="StatsPopup"]
+offset_left = -730.0
+offset_top = -399.0
+offset_right = 789.0
+offset_bottom = 432.0
+color = Color(1, 1, 1, 0)
 
 [node name="CreatureContainer" type="Node2D" parent="."]
 
@@ -31,5 +182,6 @@ limit_right = 1500000000
 limit_bottom = 1500000000
 position_smoothing_speed = 100.0
 
+[connection signal="gui_input" from="StatsPopup/ClickHandler" to="StatsPopup" method="_on_click_handler_gui_input"]
 [connection signal="chunk_loaded" from="Network" to="." method="_on_chunk_loaded"]
 [connection signal="chunk_updated" from="Network" to="." method="_on_chunk_updated"]
