@@ -1,6 +1,6 @@
 extends Node2D
 
-const MIN_ZOOM = 0.22
+const MIN_ZOOM = 0.3
 const MAX_ZOOM = 2.5
 
 var zoom_speed = 0.075
@@ -16,9 +16,23 @@ var creature_map = {}
 var pending_chunk_batches = {}
 var creature_names = {-1: "N/A"}
 
+var food_per_chunk = {}
+const MAX_FOOD_PER_CHUNK = 10
+const FOOD_RESPAWN_INTERVAL = 2.0
+var food_timer = 0.0
+
 @onready var network = $Network
 @onready var camera = $Camera2D
 @onready var container = $CreatureContainer
+
+func random_genes():
+	return {
+		"speed": randf_range(0.2, 1.0),
+		"size": randf_range(0.5, 1.5),
+		"color": randf(),
+		"move_angle": randf_range(0, TAU),
+		"move_jitter": randf_range(0.05, 0.5)
+	}
 
 func _process(delta: float) -> void:
 	var input = Vector2(
@@ -29,6 +43,28 @@ func _process(delta: float) -> void:
 	
 	_load_visible_chunks()
 	_unload_far_chunks()
+	
+	food_timer += delta
+	if food_timer > FOOD_RESPAWN_INTERVAL:
+		_spawn_food_in_loaded_chunks()
+		food_timer = 0.0
+
+func _spawn_food_in_loaded_chunks():
+	for chunk_id in loaded_chunks.keys():
+		var food_list = food_per_chunk.get(chunk_id, [])
+		food_list = food_list.filter(func(f): return is_instance_valid(f))
+		while food_list.size() < MAX_FOOD_PER_CHUNK:
+			var food = load("res://food.tscn").instantiate()
+			var chunk_x = chunk_id.x
+			var chunk_y = chunk_id.y
+			food.position = Vector2(
+				randf_range(chunk_x * chunk_size, (chunk_x + 1) * chunk_size),
+				randf_range(chunk_y * chunk_size, (chunk_y + 1) * chunk_size)
+			)
+			container.add_child(food)
+			food.add_to_group("food")
+			food_list.append(food)
+		food_per_chunk[chunk_id] = food_list
 
 func _unload_far_chunks():
 	var pos = camera.position
@@ -61,16 +97,32 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			camera.zoom *= 1.0 + zoom_speed
 	
-	elif event is InputEventMouseMotion and is_dragging:
+	if event is InputEventMouseMotion and is_dragging:
 		var delta = event.position - last_mouse_pos
 		camera.position -= delta / camera.zoom * drag_speed
 		last_mouse_pos = event.position
+	
+	if event is InputEventKey and event.pressed and event.keycode == KEY_S:
+		var world_pos = camera.get_global_mouse_position()
+		network.send_spawn_creature(world_pos, random_genes())
+	
+	if event is InputEventKey and event.pressed and event.keycode == KEY_F:
+		var world_pos = camera.get_global_mouse_position()
+		var food = load("res://food.tscn").instantiate()
+		food.position = world_pos
+		container.add_child(food)
+		food.add_to_group("food")
+		var chunk_x = int(floor(food.position.x / chunk_size))
+		var chunk_y = int(floor(food.position.y / chunk_size))
+		var chunk_id = Vector2i(chunk_x, chunk_y)
+		if not food_per_chunk.has(chunk_id):
+			food_per_chunk[chunk_id] = []
+		food_per_chunk[chunk_id].append(food)
 	
 	var z = camera.zoom
 	z.x = clamp(z.x, MIN_ZOOM, MAX_ZOOM)
 	z.y = clamp(z.y, MIN_ZOOM, MAX_ZOOM)
 	camera.zoom = z
-
 
 func _load_visible_chunks():
 	var pos = camera.position
@@ -125,12 +177,12 @@ func _on_chunk_loaded(data) -> void:
 
 func spawn_creature(data: Dictionary):
 	var c = load("res://creature.tscn").instantiate()
-	c.setup(data)
-	container.add_child(c)
-	
 	var chunk_x = floor(data["x"] / chunk_size)
 	var chunk_y = floor(data["y"] / chunk_size)
 	var chunk_id = Vector2i(chunk_x, chunk_y)
+	
+	c.setup(data, chunk_x, chunk_y)
+	container.add_child(c)
 
 	if not creature_chunks.has(chunk_id):
 		creature_chunks[chunk_id] = []

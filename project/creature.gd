@@ -13,11 +13,15 @@ var update_timer = 0.0
 var interp_duration = 0.82
 var id = -1
 var generation = 0
+var chunk_x
+var chunk_y
+var chunk_id
 
 const REPRODUCTION_ENERGY_COST = 50
 const REPRODUCTION_COOLDOWN_TIME = 10.0
 
 @onready var main = $"../.."
+@onready var network = $"../../Network"
 
 func sync_with_backend(data):
 	interp_start = position
@@ -80,7 +84,16 @@ func _process(delta: float) -> void:
 		update_timer += delta
 		var t = clamp(update_timer / interp_duration, 0, 1)
 		position = interp_start.lerp(authoritative_pos, t)
+	
+	if chunk_id:
+		for food in main.food_per_chunk.get(chunk_id, []):
+			if position.distance_to(food.position) < 15:
+				food.queue_free()
+				network.send_eat_food(id, 20, chunk_x, chunk_y)
+				main.food_per_chunk[chunk_id].erase(food)
+				break
 
+	# Local Movement system (DEPRECATED)
 	"""if reproduction_cooldown > 0:
 		reproduction_cooldown -= delta
 	else:
@@ -127,7 +140,11 @@ func _pick_new_direction():
 
 	velocity = Vector2.RIGHT.rotated(angle) * speed
 
-func setup(data):
+func setup(data, c_x, c_y):
+	chunk_x = c_x
+	chunk_y = c_y
+	chunk_id = Vector2i(int(chunk_x), int(chunk_y))
+	
 	position = Vector2(data["x"], data["y"])
 	interp_start = position
 	authoritative_pos = position

@@ -48,6 +48,23 @@ func _process(_delta: float) -> void:
 			elif item[1] == "unwatch":
 				var msg = "unwatch_chunk %d %d" % item[0]
 				peer.send_text(msg)
+			elif item[1] == "spawn_creature":
+				peer.send_text(JSON.stringify(item[0]))
+			elif item[1] == "eat_food":
+				var msg = "eat_food %d %d %d %d" % item[0]
+				peer.send_text(msg)
+
+func send_eat_food(id, energy, chunk_x, chunk_y):
+	request_queue.append([[id, energy, chunk_x, chunk_y], "eat_food"])
+
+func send_spawn_creature(pos: Vector2, genes = {}):
+	var msg = {
+		"type": "spawn_creature",
+		"x": pos.x,
+		"y": pos.y,
+		"genes": genes
+	}
+	request_queue.append([msg, "spawn_creature"])
 
 func unwatch_chunk(x, y):
 	request_queue.append([[x,y], "unwatch"])

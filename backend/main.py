@@ -147,6 +147,32 @@ async def websocket_endpoint(websocket: WebSocket):
                     active_chunks[chunk_key]['watchers'] = max(0, active_chunks[chunk_key]['watchers'] - 1)
                 watched_chunks.discard(chunk_key)
 
+            elif msg.startswith("{") and '"type":"spawn_creature"' in msg:
+                data = json.loads(msg)
+                x = data["x"]
+                y = data["y"]
+                genes = data.get("genes", {})
+                creature = models.Creature(x=x, y=y, genes=genes, energy=100.0, generation=1)
+                db.add(creature)
+                db.commit()
+                db.refresh(creature)
+                chunk_key = (int(x // 512), int(y // 512))
+                if chunk_key in active_chunks:
+                    active_chunks[chunk_key]['creatures'].append(
+                        CreatureOut.from_orm(creature).dict()
+                    )
+
+            elif msg.startswith("eat_food"):
+                _, creature_id, energy_gain, chunk_x, chunk_y = msg.split()
+                creature_id = int(creature_id)
+                energy_gain = float(energy_gain)
+                chunk_key = (int(chunk_x), int(chunk_y))
+                if chunk_key in active_chunks:
+                    for c in active_chunks[chunk_key]['creatures']:
+                        if c.get('id') == creature_id:
+                            c['energy'] += energy_gain
+                            break
+
     except Exception as e:
         print("WebSocket disconnected:", e)
         traceback.print_exc()
@@ -290,7 +316,7 @@ def simulate_chunk(creature_list, db):
 
         c['energy'] -= 0.4
 
-        if c['energy'] <= 0:
+        if c['energy'] < 1:
             if 'id' in c:
                 dead_ids.append(c['id'])
             creature_list.remove(c)

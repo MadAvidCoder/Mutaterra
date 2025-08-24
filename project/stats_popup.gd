@@ -44,4 +44,4 @@ func _on_click_handler_gui_input(event: InputEvent) -> void:
 func _on_id_text_submitted(new_text: String) -> void:
 	if visible:
 		if last_id != -1:
-			$"..".creature_names[last_id] = id.text
+			$"..".creature_names[last_id] = new_text

@@ -8,8 +8,28 @@
 [ext_resource type="Script" uid="uid://e465oiro0eod" path="res://terrain_overlay.gd" id="4_lquwl"]
 
 [node name="Node2D" type="Node2D"]
-scale = Vector2(2.30865, 2.04262)
 script = ExtResource("1_ig7tw")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+limit_left = -1500000000
+limit_top = -1500000000
+limit_right = 1500000000
+limit_bottom = 1500000000
+position_smoothing_speed = 100.0
+
+[node name="Network" type="Node2D" parent="."]
+script = ExtResource("2_0xm2m")
+
+[node name="TerrainOverlay" type="Node2D" parent="."]
+script = ExtResource("4_lquwl")
+
+[node name="GridOverlay" type="Node2D" parent="."]
+script = ExtResource("3_h2yge")
+
+[node name="CreatureContainer" type="Node2D" parent="."]
+
+[node name="Creature" parent="CreatureContainer" instance=ExtResource("3_1bvp3")]
+scale = Vector2(1e-05, 1e-05)
 
 [node name="StatsPopup" type="CanvasLayer" parent="."]
 visible = false
@@ -175,28 +195,7 @@ theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 13
 text = "Move Jitter: 123223"
 
-[node name="CreatureContainer" type="Node2D" parent="."]
-
-[node name="Creature" parent="CreatureContainer" instance=ExtResource("3_1bvp3")]
-scale = Vector2(1e-05, 1e-05)
-
-[node name="GridOverlay" type="Node2D" parent="."]
-script = ExtResource("3_h2yge")
-
-[node name="TerrainOverlay" type="Node2D" parent="."]
-script = ExtResource("4_lquwl")
-
-[node name="Network" type="Node2D" parent="."]
-script = ExtResource("2_0xm2m")
-
-[node name="Camera2D" type="Camera2D" parent="."]
-limit_left = -1500000000
-limit_top = -1500000000
-limit_right = 1500000000
-limit_bottom = 1500000000
-position_smoothing_speed = 100.0
-
-[connection signal="gui_input" from="StatsPopup/ClickHandler" to="StatsPopup" method="_on_click_handler_gui_input"]
-[connection signal="text_submitted" from="StatsPopup/ColorRect/ID" to="StatsPopup" method="_on_id_text_submitted"]
 [connection signal="chunk_loaded" from="Network" to="." method="_on_chunk_loaded"]
 [connection signal="chunk_updated" from="Network" to="." method="_on_chunk_updated"]
+[connection signal="gui_input" from="StatsPopup/ClickHandler" to="StatsPopup" method="_on_click_handler_gui_input"]
+[connection signal="text_submitted" from="StatsPopup/ColorRect/ID" to="StatsPopup" method="_on_id_text_submitted"]
