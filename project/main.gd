@@ -4,7 +4,6 @@ const MIN_ZOOM = 0.3
 const MAX_ZOOM = 2.5
 
 var zoom_speed = 0.075
-var drag_speed = 0.5
 var move_speed = 500
 var chunk_size = 512
 var loaded_chunks = {}
@@ -99,7 +98,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	
 	if event is InputEventMouseMotion and is_dragging:
 		var delta = event.position - last_mouse_pos
-		camera.position -= delta / camera.zoom * drag_speed
+		camera.position -= delta / camera.zoom
 		last_mouse_pos = event.position
 	
 	if event is InputEventKey and event.pressed and event.keycode == KEY_S:
