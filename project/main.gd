@@ -1,6 +1,6 @@
 extends Node2D
 
-const MIN_ZOOM = 0.3
+const MIN_ZOOM = 0.5
 const MAX_ZOOM = 2.5
 
 var zoom_speed = 0.075
